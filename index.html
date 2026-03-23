@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>謝雨岑的數位名片</title>
+    <style>
+      :root {
+        --bg-1: #fff1f6;
+        --bg-2: #fde2f0;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --card: rgba(255, 255, 255, 0.7);
+        --card-border: rgba(31, 41, 55, 0.08);
+        --shadow: 0 18px 50px rgba(17, 24, 39, 0.12);
+        --ring: rgba(236, 72, 153, 0.35);
+
+        --accent: #ec4899; /* pink */
+        --accent-2: #f472b6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+        color: var(--text);
+
+        background: radial-gradient(900px circle at 10% 10%, var(--bg-1), transparent 55%),
+          radial-gradient(900px circle at 90% 20%, var(--bg-2), transparent 55%),
+          linear-gradient(180deg, #ffffff, #fff7fb);
+
+        transition: background 500ms ease;
+        overflow-x: hidden;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(700px circle at var(--mx, 50%) var(--my, 30%), rgba(236, 72, 153, 0.12), transparent 55%);
+        opacity: 0.65;
+        transition: opacity 300ms ease;
+      }
+
+      .page {
+        min-height: 100%;
+        display: grid;
+        place-items: center;
+        padding: 28px 16px;
+        position: relative;
+      }
+
+      .card {
+        width: min(560px, 100%);
+        border-radius: 24px;
+        background: var(--card);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        box-shadow: var(--shadow);
+        padding: 34px 22px 26px;
+        text-align: center;
+      }
+
+      .avatar {
+        width: 168px;
+        height: 168px;
+        border-radius: 999px;
+        margin: 8px auto 18px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.18), rgba(244, 114, 182, 0.06));
+        border: 1px solid rgba(236, 72, 153, 0.18);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+      }
+
+      .avatar::before {
+        content: "";
+        position: absolute;
+        inset: -40px;
+        background: radial-gradient(circle at 30% 20%, rgba(236, 72, 153, 0.22), transparent 45%);
+        transform: rotate(8deg);
+      }
+
+      .avatarInner {
+        position: relative;
+        z-index: 1;
+        width: calc(100% - 24px);
+        height: calc(100% - 24px);
+        border-radius: 999px;
+        border: 1px dashed rgba(31, 41, 55, 0.16);
+        display: grid;
+        place-items: center;
+        color: rgba(31, 41, 55, 0.55);
+        overflow: hidden;
+      }
+
+      .avatarInner svg {
+        opacity: 0.9;
+      }
+
+      .avatarImg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+      }
+
+      .avatarImg.show {
+        display: block;
+      }
+
+      .avatarPlaceholder {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .avatarPlaceholderText {
+        margin-top: 6px;
+        font-size: 12.5px;
+      }
+
+      .avatarSmallHint {
+        position: absolute;
+        left: 50%;
+        bottom: 12px;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: rgba(31, 41, 55, 0.85);
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(31, 41, 55, 0.10);
+        padding: 4px 10px;
+        border-radius: 999px;
+        backdrop-filter: blur(8px);
+        z-index: 3;
+        user-select: none;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+
+      h1 {
+        font-size: 30px;
+        margin: 6px 0 8px;
+        letter-spacing: 0.5px;
+      }
+
+      .subtitle {
+        margin: 0 auto 22px;
+        max-width: 44ch;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      .pillHighlight {
+        display: inline-block;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: rgba(236, 72, 153, 0.10);
+        border: 1px solid rgba(236, 72, 153, 0.18);
+        color: #9d174d;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+      }
+
+      .socialRow {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding-top: 6px;
+      }
+
+      .socialBtn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 16px;
+        border-radius: 999px;
+        text-decoration: none;
+        color: #111827;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(17, 24, 39, 0.10);
+        box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+        transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .socialBtn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(236, 72, 153, 0.25);
+        box-shadow: 0 16px 40px rgba(236, 72, 153, 0.14);
+      }
+
+      .socialBtn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px var(--ring), 0 10px 30px rgba(17, 24, 39, 0.08);
+      }
+
+      .icon {
+        width: 18px;
+        height: 18px;
+        display: inline-block;
+      }
+
+      .footerHint {
+        margin-top: 18px;
+        color: rgba(107, 114, 128, 0.9);
+        font-size: 12.5px;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(236, 72, 153, 0.22);
+        backdrop-filter: blur(10px);
+        padding: 10px 14px;
+        border-radius: 999px;
+        box-shadow: 0 20px 60px rgba(17, 24, 39, 0.15);
+        font-size: 13px;
+        color: #9d174d;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 200ms ease, transform 200ms ease;
+      }
+
+      .copyPopup {
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        background: rgba(17, 24, 39, 0.55); /* 灰黑半透明 */
+        color: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(10px);
+        padding: 10px 14px;
+        border-radius: 999px;
+        box-shadow: 0 20px 60px rgba(17, 24, 39, 0.35);
+        font-size: 13px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 180ms ease, transform 180ms ease;
+      }
+
+      .copyPopup.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-4px);
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-4px);
+      }
+
+      /* 手機版微調：讓版面在小螢幕也維持乾淨、可讀、好點 */
+      @media (max-width: 420px) {
+        .page {
+          padding: 18px 12px;
+        }
+
+        .card {
+          padding: 28px 16px 22px;
+          border-radius: 22px;
+        }
+
+        .avatar {
+          width: 138px;
+          height: 138px;
+          margin: 6px auto 12px;
+        }
+
+        h1 {
+          font-size: 26px;
+          margin: 4px 0 6px;
+        }
+
+        .subtitle {
+          margin: 0 auto 18px;
+          font-size: 14px;
+        }
+
+        .socialRow {
+          gap: 10px;
+          padding-top: 2px;
+        }
+
+        .socialBtn {
+          padding: 10px 14px;
+          font-size: 14px;
+        }
+
+        .icon {
+          width: 17px;
+          height: 17px;
+        }
+
+        .footerHint {
+          margin-top: 14px;
+          font-size: 12px;
+        }
+
+        .toast,
+        .copyPopup {
+          bottom: 14px;
+          padding: 9px 12px;
+          font-size: 12px;
+        }
+      }
+
+      @media (max-height: 620px) and (max-width: 520px) {
+        .page {
+          padding: 14px 12px;
+        }
+
+        .card {
+          padding-top: 24px;
+        }
+
+        .footerHint {
+          margin-top: 12px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body,
+        .socialBtn,
+        .toast {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="page">
+      <div class="card">
+        <div
+          class="avatar"
+          id="avatar"
+          role="button"
+          tabindex="0"
+          aria-label="點擊大頭貼看更多"
+        >
+          <div class="avatarInner">
+            <div class="avatarPlaceholder" id="avatarPlaceholder" aria-hidden="true">
+              <svg
+                width="44"
+                height="44"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path d="M20 21V19.5C20 18.3954 19.1046 17.5 18 17.5H6C4.89543 17.5 4 18.3954 4 19.5V21" stroke="#be185d" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M12 13.5C14.2091 13.5 16 11.7091 16 9.5C16 7.29086 14.2091 5.5 12 5.5C9.79086 5.5 8 7.29086 8 9.5C8 11.7091 9.79086 13.5 12 13.5Z" stroke="#be185d" stroke-width="1.6"/>
+              </svg>
+              <div class="avatarPlaceholderText">大頭照</div>
+            </div>
+
+            <img class="avatarImg" id="avatarImg" alt="大頭貼" />
+
+            <div class="avatarSmallHint">點擊大頭貼看更多</div>
+          </div>
+        </div>
+
+        <h1>謝雨岑</h1>
+        <p class="subtitle">
+          我是熱愛 <span class="pillHighlight">跳舞和KPOP</span> 的 <span class="pillHighlight">北醫</span> 大學生
+        </p>
+
+        <div class="socialRow" aria-label="社群連結">
+          <a class="socialBtn" href="https://line.me/" target="_blank" rel="noreferrer" aria-label="Line 連結">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.477 2 2 6.12 2 11.2C2 15.44 5.5 19.16 10 20.05V22L13 20.4C18.24 19.78 22 16.3 22 11.2C22 6.12 17.523 2 12 2Z" stroke="#be185d" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="M7.5 11.4H7.51M12 11.4H12.01M16.5 11.4H16.51" stroke="#be185d" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            Line
+          </a>
+
+          <a class="socialBtn" href="https://www.instagram.com/for_everyoung10/" target="_blank" rel="noreferrer" aria-label="Instagram 連結">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 2H17C19.7614 2 22 4.23858 22 7V17C22 19.7614 19.7614 22 17 22H7C4.23858 22 2 19.7614 2 17V7C2 4.23858 4.23858 2 7 2Z" stroke="#be185d" stroke-width="1.6"/>
+                <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" stroke="#be185d" stroke-width="1.6"/>
+                <path d="M17.8 6.2H17.81" stroke="#be185d" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </span>
+            Instagram
+          </a>
+
+          <a
+            id="emailBtn"
+            class="socialBtn"
+            href="b313114057@tmu.edu.tw"
+            data-email="b313114057@tmu.edu.tw"
+            aria-label="電子郵件連結（點擊複製）"
+          >
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 4H20V20H4V4Z" stroke="#be185d" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="M4 7L12 13L20 7" stroke="#be185d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            Email
+          </a>
+        </div>
+
+        <div class="footerHint">點擊背景，隨機切換粉嫩色系驚喜。</div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">粉色驚喜已切換</div>
+    <div class="copyPopup" id="copyPopup" role="status" aria-live="polite">已複製到剪貼簿</div>
+
+    <script>
+      (function () {
+        const gradients = [
+          ["#fff1f6", "#fde2f0"],
+          ["#ffe4ee", "#ffd1e7"],
+          ["#ffe9f3", "#ffc7df"],
+          ["#fff0f8", "#ffccf0"],
+          ["#ffe6f2", "#ffbfe3"],
+          ["#fff2f7", "#ffb9d9"],
+          ["#ffe7f6", "#ffc8ea"],
+        ];
+
+        const toast = document.getElementById("toast");
+        const copyPopup = document.getElementById("copyPopup");
+        let toastTimer = null;
+        let copyTimer = null;
+        const page = document.getElementById("page");
+
+        function showToast(text) {
+          toast.textContent = text;
+          toast.classList.add("show");
+          window.clearTimeout(toastTimer);
+          toastTimer = window.setTimeout(() => toast.classList.remove("show"), 1350);
+        }
+
+        function setPinkTheme({ showToast: shouldShowToast } = { showToast: true }) {
+          const [bg1, bg2] = gradients[Math.floor(Math.random() * gradients.length)];
+          document.documentElement.style.setProperty("--bg-1", bg1);
+          document.documentElement.style.setProperty("--bg-2", bg2);
+          if (shouldShowToast) showToast("粉色驚喜已切換");
+        }
+
+        function showCopyPopup() {
+          window.clearTimeout(copyTimer);
+          copyPopup.classList.add("show");
+          copyTimer = window.setTimeout(() => copyPopup.classList.remove("show"), 1400);
+        }
+
+        async function copyTextToClipboard(text) {
+          try {
+            // secure context 才支援 navigator.clipboard
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(text);
+              return true;
+            }
+          } catch {
+            // 走 fallback
+          }
+
+          // fallback：用 textarea + execCommand（仍需要使用者手勢）
+          try {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.setAttribute("readonly", "");
+            textarea.style.position = "fixed";
+            textarea.style.left = "-9999px";
+            textarea.style.top = "-9999px";
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, textarea.value.length);
+            const ok = document.execCommand("copy");
+            document.body.removeChild(textarea);
+            return ok;
+          } catch {
+            return false;
+          }
+        }
+
+        // 點擊 Email：複製到剪貼簿 + 顯示灰色半透明彈窗
+        const emailBtn = document.getElementById("emailBtn");
+        if (emailBtn) {
+          emailBtn.addEventListener("click", async (e) => {
+            e.preventDefault(); // 不直接跳出 mailto
+
+            const email = emailBtn.getAttribute("data-email") || "";
+            if (!email) return;
+
+            const ok = await copyTextToClipboard(email);
+            if (ok) showCopyPopup();
+          });
+        }
+
+        // 大頭貼：放多張照片，點擊就切換
+        const avatar = document.getElementById("avatar");
+        const avatarImg = document.getElementById("avatarImg");
+        const avatarPlaceholder = document.getElementById("avatarPlaceholder");
+
+        // TODO：把這些檔名換成你自己的照片（建議放在同一資料夾）
+        // 例如：avatar1.jpg、avatar2.png...
+        const avatarImages = ["./avatar1.jpg", "./avatar2.jpg", "./avatar3.jpg", "./avatar4.jpg", "./avatar5.jpg", "./avatar6.jpg", "./avatar7.jpg", "./avatar8.jpg", "./avatar9.jpg", "./avatar10.jpg"];
+        let avatarIndex = 0;
+
+        function renderAvatar() {
+          if (!avatarImg || !avatarImages.length) return;
+
+          // 先維持占位；直到載入成功才顯示圖片
+          avatarImg.classList.remove("show");
+          if (avatarPlaceholder) avatarPlaceholder.style.display = "grid";
+
+          const src = avatarImages[avatarIndex % avatarImages.length];
+          avatarImg.src = src;
+        }
+
+        if (avatarImg) {
+          avatarImg.addEventListener("load", () => {
+            avatarImg.classList.add("show");
+            if (avatarPlaceholder) avatarPlaceholder.style.display = "none";
+          });
+
+          avatarImg.addEventListener("error", () => {
+            avatarImg.classList.remove("show");
+            if (avatarPlaceholder) avatarPlaceholder.style.display = "grid";
+          });
+        }
+
+        function nextAvatar() {
+          if (!avatarImages.length) return;
+          avatarIndex = (avatarIndex + 1) % avatarImages.length;
+          renderAvatar();
+        }
+
+        if (avatar) {
+          avatar.addEventListener("click", nextAvatar);
+          avatar.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              nextAvatar();
+            }
+          });
+        }
+
+        renderAvatar();
+
+        // 讓背景「像觸控」一點：滑鼠移動更新光暈位置
+        window.addEventListener("pointermove", (e) => {
+          const x = (e.clientX / window.innerWidth) * 100;
+          const y = (e.clientY / window.innerHeight) * 100;
+          document.body.style.setProperty("--mx", x.toFixed(2) + "%");
+          document.body.style.setProperty("--my", y.toFixed(2) + "%");
+        }, { passive: true });
+
+        // 點擊背景切換粉嫩色系（避免點到連結時觸發）
+        document.addEventListener("click", (e) => {
+          const link = e.target && e.target.closest && e.target.closest("a");
+          if (link) return;
+
+          // 若是點到卡片內容或 toast 本身，也不需要切換
+          const card = e.target && e.target.closest && e.target.closest(".card");
+          if (card) return;
+          if (e.target === toast) return;
+
+          setPinkTheme();
+        });
+
+        // 首次載入也給一個輕微「不同」的初始色（不跳提示）
+        setPinkTheme({ showToast: false });
+      })();
+    </script>
+  </body>
+</html>
+
